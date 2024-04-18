@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Game.h"
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 Game::Game(const std::string& path) {
   init(path);
@@ -280,7 +279,7 @@ void Game::sCollision() {
   for (auto& bullet : m_entities.getEntities("bullet")) {
     for (auto& enemy : m_entities.getEntities("enemy")) {
       if (enemy->cLifespan && enemy->cLifespan->remaining / enemy->cLifespan->total > 0.95) { continue; }
-      
+
       Vec2 distanceVector = enemy->cTransform->pos - bullet->cTransform->pos;
       float length = enemy->cCollision->radius + bullet->cCollision->radius;
 
@@ -297,9 +296,8 @@ void Game::sCollision() {
 
   for (auto& enemy : m_entities.getEntities("enemy")) {
     if (player->cInput->special) {
-
       if (enemy->cLifespan && enemy->cLifespan->remaining / enemy->cLifespan->total > 0.95) { continue; }
-      
+
       if (player->cLazer->px != (enemy->cTransform->pos.x - player->cTransform->pos.x >= 0)) { continue; }
       if (player->cLazer->py != (enemy->cTransform->pos.y - player->cTransform->pos.y >= 0)) { continue; }
 
@@ -307,10 +305,10 @@ void Game::sCollision() {
             b = 1,
             c = -player->cLazer->c;
 
-      float distance =
-        abs(a * enemy->cTransform->pos.x + b * enemy->cTransform->pos.y + c) / sqrt(a * a + b * b);
+      float numerator = (a * enemy->cTransform->pos.x + b * enemy->cTransform->pos.y + c);
+      float distance = numerator * numerator / (a * a + b * b);
 
-      if (distance < enemy->cCollision->radius) {
+      if (distance < enemy->cCollision->radius * enemy->cCollision->radius) {
         spawnSmallEnemies(enemy, player->cLazer->angle * 3.14 / 180);
         enemy->destroy();
         continue;
